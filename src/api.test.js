@@ -35,7 +35,7 @@ before(async () => {
   
   // Import app and start server
   const express = require('express');
-  const { generateYearProgressImage, generateLifeWeeksImage, generateLifeDaysImage } = require('./imageGenerator');
+  const { generateYearProgressImage, generateLifeWeeksImage, generateLifeDaysImage, generateCountdownImage } = require('./imageGenerator');
   
   const app = express();
   
@@ -102,6 +102,29 @@ before(async () => {
       const paddingBottom = parseInt(req.query.paddingBottom) || 0;
       
       const buffer = await generateLifeDaysImage(birthdate, timezone, maxAge, width, height, paddingTop, paddingBottom);
+      res.set('Content-Type', 'image/png');
+      res.send(buffer);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  app.get('/countdown', async (req, res) => {
+    try {
+      const timezone = req.query.timezone || 'UTC';
+      const targetDate = req.query.date;
+      const title = req.query.title || 'Event';
+      
+      if (!targetDate) {
+        return res.status(400).json({ error: 'date parameter is required' });
+      }
+      
+      const width = parseInt(req.query.width) || 800;
+      const height = parseInt(req.query.height) || 500;
+      const paddingTop = parseInt(req.query.paddingTop) || 0;
+      const paddingBottom = parseInt(req.query.paddingBottom) || 0;
+      
+      const buffer = await generateCountdownImage(targetDate, timezone, title, width, height, paddingTop, paddingBottom);
       res.set('Content-Type', 'image/png');
       res.send(buffer);
     } catch (error) {
@@ -192,6 +215,36 @@ describe('API Endpoints', () => {
 
   test('GET /life-days with custom maxAge', async () => {
     const res = await request('/life-days?birthdate=1990-05-15&maxAge=100');
+    assert.strictEqual(res.status, 200);
+    assert.strictEqual(res.headers['content-type'], 'image/png');
+  });
+
+  test('GET /countdown returns PNG image', async () => {
+    const res = await request('/countdown?date=2027-12-31');
+    assert.strictEqual(res.status, 200);
+    assert.strictEqual(res.headers['content-type'], 'image/png');
+    assert.strictEqual(res.body[0], 0x89, 'Should be PNG');
+  });
+
+  test('GET /countdown without date returns error', async () => {
+    const res = await request('/countdown');
+    assert.strictEqual(res.status, 400);
+  });
+
+  test('GET /countdown with custom title', async () => {
+    const res = await request('/countdown?date=2027-06-15&title=Birthday');
+    assert.strictEqual(res.status, 200);
+    assert.strictEqual(res.headers['content-type'], 'image/png');
+  });
+
+  test('GET /countdown with timezone', async () => {
+    const res = await request('/countdown?date=2027-12-25&timezone=America/New_York');
+    assert.strictEqual(res.status, 200);
+    assert.strictEqual(res.headers['content-type'], 'image/png');
+  });
+
+  test('GET /countdown for past date', async () => {
+    const res = await request('/countdown?date=2020-01-01&title=Past%20Event');
     assert.strictEqual(res.status, 200);
     assert.strictEqual(res.headers['content-type'], 'image/png');
   });
