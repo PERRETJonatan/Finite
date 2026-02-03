@@ -168,7 +168,12 @@ app.get('/countdown', async (req, res) => {
   try {
     const timezone = req.query.timezone || 'UTC';
     const targetDate = req.query.date;
-    const title = req.query.title || 'Event';
+    const rawTitle = req.query.title;
+    const title = rawTitle === undefined ? 'Event' : rawTitle;
+
+    if (typeof title !== 'string') {
+      return res.status(400).json({ error: 'Title must be a single string value' });
+    }
     
     if (!targetDate) {
       return res.status(400).json({ error: 'date parameter is required (YYYY-MM-DD format)' });
