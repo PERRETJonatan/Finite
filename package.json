@@ -1,0 +1,19 @@
+{
+  "name": "dayremind",
+  "version": "1.0.0",
+  "description": "API to generate images showing year progress - remaining days, consumed days, and percentage",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test src/*.test.js",
+    "test:image": "node --test src/imageGenerator.test.js",
+    "test:api": "node --test src/api.test.js"
+  },
+  "keywords": ["year-progress", "image-generation", "api"],
+  "license": "MIT",
+  "dependencies": {
+    "@napi-rs/canvas": "^0.1.44",
+    "express": "^4.18.2"
+  }
+}
