@@ -1,6 +1,6 @@
-# DayRemind
+# Finite
 
-An API to generate images showing year progress - remaining days, consumed days, and percentage.
+An API to generate images visualizing life progress - year progress, life in weeks, and life in days.
 
 ## Features
 

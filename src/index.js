@@ -6,7 +6,7 @@ const PORT = process.env.PORT || 3000;
 
 app.get('/', (req, res) => {
   res.json({
-    message: 'DayRemind API',
+    message: 'Finite API',
     endpoints: {
       '/image': 'Generate year progress image (PNG)',
       '/life': 'Generate life weeks image (PNG) - shows weeks lived vs remaining until max age',
@@ -259,7 +259,7 @@ function getYearStats(timezone = 'UTC') {
 }
 
 app.listen(PORT, () => {
-  console.log(`🚀 DayRemind API running on http://localhost:${PORT}`);
+  console.log(`🚀 Finite API running on http://localhost:${PORT}`);
 });
 
 module.exports = { getYearStats };

@@ -1,7 +1,7 @@
 {
-  "name": "dayremind",
+  "name": "finite",
   "version": "1.0.0",
-  "description": "API to generate images showing year progress - remaining days, consumed days, and percentage",
+  "description": "API to generate images visualizing life progress - year progress, life in weeks, and life in days",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",

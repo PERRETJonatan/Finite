@@ -126,7 +126,7 @@ describe('API Endpoints', () => {
     const res = await request('/');
     assert.strictEqual(res.status, 200);
     const json = res.json();
-    assert.strictEqual(json.message, 'DayRemind API');
+    assert.strictEqual(json.message, 'Finite API');
   });
 
   test('GET /stats returns year statistics', async () => {
