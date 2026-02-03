@@ -1,5 +1,5 @@
 const express = require('express');
-const { generateYearProgressImage, generateLifeWeeksImage, generateLifeDaysImage } = require('./imageGenerator');
+const { generateYearProgressImage, generateLifeWeeksImage, generateLifeDaysImage, generateCountdownImage } = require('./imageGenerator');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -11,6 +11,7 @@ app.get('/', (req, res) => {
       '/image': 'Generate year progress image (PNG)',
       '/life': 'Generate life weeks image (PNG) - shows weeks lived vs remaining until max age',
       '/life-days': 'Generate life days image (PNG) - shows days lived vs remaining until max age',
+      '/countdown': 'Generate countdown image (PNG) - shows days remaining until a target date',
       '/stats': 'Get year progress statistics as JSON'
     },
     parameters: {
@@ -25,6 +26,10 @@ app.get('/', (req, res) => {
       life: {
         birthdate: 'Required. Date of birth in YYYY-MM-DD format.',
         maxAge: 'Optional. Maximum age in years (default: 80).'
+      },
+      countdown: {
+        date: 'Required. Target date in YYYY-MM-DD format.',
+        title: 'Optional. Event title to display (default: Event).'
       }
     },
     presets: {
@@ -153,6 +158,73 @@ app.get('/life-days', async (req, res) => {
       res.status(400).json({ error: 'Invalid timezone' });
     } else if (error.message === 'Invalid birthdate') {
       res.status(400).json({ error: 'Invalid birthdate' });
+    } else {
+      res.status(500).json({ error: 'Failed to generate image' });
+    }
+  }
+});
+
+app.get('/countdown', async (req, res) => {
+  try {
+    const timezone = req.query.timezone || 'UTC';
+    const targetDate = req.query.date;
+    const rawTitle = req.query.title;
+    const title = rawTitle === undefined ? 'Event' : rawTitle;
+
+    if (typeof title !== 'string') {
+      return res.status(400).json({ error: 'Title must be a single string value' });
+    }
+    
+    if (!targetDate) {
+      return res.status(400).json({ error: 'date parameter is required (YYYY-MM-DD format)' });
+    }
+    
+    // Validate date format
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(targetDate)) {
+      return res.status(400).json({ error: 'Invalid date format. Use YYYY-MM-DD' });
+    }
+    
+    // Validate title length
+    if (title.length > 50) {
+      return res.status(400).json({ error: 'Title must be 50 characters or less' });
+    }
+    
+    // Device presets for iPhone wallpapers
+    const presets = {
+      'iphone-standard': { width: 1170, height: 2532, paddingTop: 200, paddingBottom: 300 },
+      'iphone-pro': { width: 1179, height: 2556, paddingTop: 200, paddingBottom: 300 },
+      'iphone-pro-max': { width: 1290, height: 2796, paddingTop: 540, paddingBottom: 560 }
+    };
+    
+    let width, height, paddingTop, paddingBottom;
+    
+    if (req.query.preset && presets[req.query.preset]) {
+      const preset = presets[req.query.preset];
+      width = preset.width;
+      height = preset.height;
+      paddingTop = preset.paddingTop;
+      paddingBottom = preset.paddingBottom;
+    } else {
+      width = parseInt(req.query.width) || 800;
+      height = parseInt(req.query.height) || 500;
+      paddingTop = parseInt(req.query.paddingTop) || 0;
+      paddingBottom = parseInt(req.query.paddingBottom) || 0;
+    }
+    
+    // Validate dimensions
+    if (width < 400 || width > 3000 || height < 300 || height > 4000) {
+      return res.status(400).json({ error: 'Invalid dimensions. Width: 400-3000, Height: 300-4000' });
+    }
+    
+    const buffer = await generateCountdownImage(targetDate, timezone, title, width, height, paddingTop, paddingBottom);
+    res.set('Content-Type', 'image/png');
+    res.send(buffer);
+  } catch (error) {
+    console.error('Error generating countdown image:', error);
+    if (error.message === 'Invalid timezone') {
+      res.status(400).json({ error: 'Invalid timezone' });
+    } else if (error.message === 'Invalid target date') {
+      res.status(400).json({ error: 'Invalid target date' });
     } else {
       res.status(500).json({ error: 'Failed to generate image' });
     }

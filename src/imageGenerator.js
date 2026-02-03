@@ -502,4 +502,149 @@ async function generateLifeDaysImage(birthdate, timezone = 'UTC', maxAge = 80, w
   return canvas.toBuffer('image/png');
 }
 
-module.exports = { generateYearProgressImage, generateLifeWeeksImage, generateLifeDaysImage };
+function getCountdownStats(targetDate, timezone = 'UTC', title = 'Event') {
+  // Validate timezone
+  try {
+    Intl.DateTimeFormat(undefined, { timeZone: timezone });
+  } catch (e) {
+    throw new Error('Invalid timezone');
+  }
+
+  // Parse target date
+  const [targetYear, targetMonth, targetDay] = targetDate.split('-').map(Number);
+  if (!targetYear || !targetMonth || !targetDay) {
+    throw new Error('Invalid target date');
+  }
+
+  const now = new Date();
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: timezone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+  
+  const [nowYearStr, nowMonthStr, nowDayStr] = formatter.format(now).split('-');
+  const nowYear = parseInt(nowYearStr);
+  const nowMonth = parseInt(nowMonthStr);
+  const nowDay = parseInt(nowDayStr);
+
+  const currentDate = new Date(nowYear, nowMonth - 1, nowDay);
+  const target = new Date(targetYear, targetMonth - 1, targetDay);
+  
+  const msPerDay = 24 * 60 * 60 * 1000;
+  const diffMs = target - currentDate;
+  const daysRemaining = Math.ceil(diffMs / msPerDay);
+  
+  const weeksRemaining = Math.floor(daysRemaining / 7);
+  const monthsRemaining = Math.floor(daysRemaining / 30.44);
+  
+  const isPast = daysRemaining < 0;
+  const isToday = daysRemaining === 0;
+
+  return {
+    title,
+    targetDate,
+    timezone,
+    daysRemaining: Math.abs(daysRemaining),
+    weeksRemaining: Math.abs(weeksRemaining),
+    monthsRemaining: Math.abs(monthsRemaining),
+    isPast,
+    isToday
+  };
+}
+
+async function generateCountdownImage(targetDate, timezone = 'UTC', title = 'Event', width = 800, height = 500, paddingTop = 0, paddingBottom = 0) {
+  const stats = getCountdownStats(targetDate, timezone, title);
+  
+  const canvas = createCanvas(width, height);
+  
+  // Calculate content area (excluding padding for clock/widgets)
+  const contentTop = paddingTop;
+  const contentBottom = height - paddingBottom;
+  const contentHeight = contentBottom - contentTop;
+  
+  // Scale based on content area
+  const scaleX = width / 800;
+  const scaleY = contentHeight / 500;
+  const scale = Math.min(scaleX, scaleY);
+  const ctx = canvas.getContext('2d');
+
+  // Background gradient
+  const gradient = ctx.createLinearGradient(0, 0, width, height);
+  gradient.addColorStop(0, '#1a1a2e');
+  gradient.addColorStop(1, '#16213e');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, height);
+
+  // Title (event name)
+  ctx.fillStyle = '#a0aec0';
+  ctx.font = `${Math.round(28 * scale)}px Arial`;
+  ctx.textAlign = 'center';
+  ctx.fillText(stats.isToday ? '🎉 TODAY 🎉' : (stats.isPast ? 'Since' : 'Countdown to'), width / 2, contentTop + 50 * scaleY);
+  
+  ctx.fillStyle = '#ffffff';
+  ctx.font = `bold ${Math.round(48 * scale)}px Arial`;
+  ctx.fillText(stats.title, width / 2, contentTop + 110 * scaleY);
+
+  // Target date subtitle
+  const dateFormatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: timezone,
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+  const [year, month, day] = targetDate.split('-').map(Number);
+  const displayDate = dateFormatter.format(new Date(year, month - 1, day));
+  ctx.fillStyle = '#a0aec0';
+  ctx.font = `${Math.round(22 * scale)}px Arial`;
+  ctx.fillText(displayDate, width / 2, contentTop + 150 * scaleY);
+
+  if (stats.isToday) {
+    // Special "Today" display
+    ctx.fillStyle = '#4fd1c5';
+    ctx.font = `bold ${Math.round(120 * scale)}px Arial`;
+    ctx.fillText('🎊', width / 2, contentTop + 300 * scaleY);
+  } else {
+    // Big number display
+    const bigNumber = stats.daysRemaining;
+    const bigNumberGradient = ctx.createLinearGradient(0, contentTop + 180 * scaleY, 0, contentTop + 320 * scaleY);
+    if (stats.isPast) {
+      bigNumberGradient.addColorStop(0, '#a0aec0');
+      bigNumberGradient.addColorStop(1, '#718096');
+    } else {
+      bigNumberGradient.addColorStop(0, '#667eea');
+      bigNumberGradient.addColorStop(1, '#764ba2');
+    }
+    ctx.fillStyle = bigNumberGradient;
+    ctx.font = `bold ${Math.round(140 * scale)}px Arial`;
+    ctx.fillText(bigNumber.toLocaleString(), width / 2, contentTop + 310 * scaleY);
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.font = `${Math.round(32 * scale)}px Arial`;
+    ctx.fillText(stats.isPast ? 'days ago' : 'days to go', width / 2, contentTop + 360 * scaleY);
+  }
+
+  // Stats cards
+  const cardY = contentTop + 390 * scaleY;
+  const cardHeight = 80 * scale;
+  const cardWidth = 180 * scale;
+  const cardGap = 25 * scale;
+  const startX = (width - (3 * cardWidth + 2 * cardGap)) / 2;
+
+  if (!stats.isToday) {
+    // Weeks Card
+    drawCard(ctx, startX, cardY, cardWidth, cardHeight, '#667eea', 'Weeks', stats.weeksRemaining.toLocaleString(), scale * 0.8);
+
+    // Months Card
+    drawCard(ctx, startX + cardWidth + cardGap, cardY, cardWidth, cardHeight, '#f093fb', 'Months', stats.monthsRemaining.toLocaleString(), scale * 0.8);
+
+    // Hours Card
+    const hoursRemaining = stats.daysRemaining * 24;
+    drawCard(ctx, startX + 2 * (cardWidth + cardGap), cardY, cardWidth, cardHeight, '#4fd1c5', 'Hours', hoursRemaining.toLocaleString(), scale * 0.8);
+  }
+
+  return canvas.toBuffer('image/png');
+}
+
+module.exports = { generateYearProgressImage, generateLifeWeeksImage, generateLifeDaysImage, generateCountdownImage };
