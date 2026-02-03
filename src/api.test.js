@@ -40,7 +40,7 @@ before(async () => {
   const app = express();
   
   app.get('/', (req, res) => {
-    res.json({ message: 'DayRemind API' });
+    res.json({ message: 'Finite API' });
   });
 
   app.get('/stats', (req, res) => {
