@@ -11,6 +11,7 @@ A Node.js API that generates powerful visual reminders of time's passage. Create
 - **Year Progress** — Visualize how much of the current year has passed
 - **Life in Weeks** — See your entire life as a grid of weeks (inspired by [Wait But Why](https://waitbutwhy.com/2014/05/life-weeks.html))
 - **Life in Days** — Even more granular view of your life in days
+- **Event Countdown** — Count down days to any upcoming event (birthdays, vacations, deadlines)
 - **iPhone Wallpapers** — Built-in presets for iPhone lock screens with safe areas for clock/widgets
 - **Timezone Support** — Accurate calculations for any timezone
 - **Beautiful Design** — Dark gradient backgrounds with colorful progress indicators
@@ -72,6 +73,25 @@ Generates a life-in-days visualization (same parameters as `/life`).
 ```
 GET /life-days?birthdate=1990-05-15&maxAge=80&preset=iphone-pro
 ```
+
+### `GET /countdown` — Event Countdown
+Generates a countdown visualization to a specific date.
+
+```
+GET /countdown?date=2026-12-31&title=New%20Year&preset=iphone-pro
+```
+
+| Parameter | Description | Default |
+|-----------|-------------|----------|
+| `date` | Target date (`YYYY-MM-DD`) | **Required** |
+| `title` | Event name to display | `Event` |
+| `timezone` | IANA timezone | `UTC` |
+| `preset` | Device preset (see below) | — |
+
+Features:
+- Shows days, weeks, months, and hours remaining
+- Works with past dates (shows "X days ago")
+- Special celebration display when the date is today
 
 ### `GET /stats` — JSON Statistics
 Returns year progress as JSON.
