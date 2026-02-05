@@ -1,5 +1,11 @@
 const express = require('express');
+const { GlobalFonts } = require('@napi-rs/canvas');
+const path = require('path');
 const { generateYearProgressImage, generateLifeWeeksImage, generateLifeDaysImage, generateCountdownImage } = require('./imageGenerator');
+
+// Register fonts (do this once at startup)
+GlobalFonts.registerFromPath(path.join(__dirname, '..', 'fonts', 'Inter-Regular.ttf'), 'Inter');
+GlobalFonts.registerFromPath(path.join(__dirname, '..', 'fonts', 'Inter-Bold.ttf'), 'InterBold');
 
 const app = express();
 const PORT = process.env.PORT || 3000;

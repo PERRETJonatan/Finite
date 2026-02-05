@@ -70,7 +70,7 @@ async function generateYearProgressImage(timezone = 'UTC', width = 800, height =
 
   // Title
   ctx.fillStyle = '#ffffff';
-  ctx.font = `bold ${Math.round(48 * scale)}px Arial`;
+  ctx.font = `bold ${Math.round(48 * scale)}px Inter`;
   ctx.textAlign = 'center';
   ctx.fillText(`Year ${stats.year} Progress`, width / 2, contentTop + 70 * scaleY);
 
@@ -96,7 +96,7 @@ async function generateYearProgressImage(timezone = 'UTC', width = 800, height =
 
   // Progress percentage on bar
   ctx.fillStyle = '#ffffff';
-  ctx.font = `bold ${Math.round(24 * scale)}px Arial`;
+  ctx.font = `bold ${Math.round(24 * scale)}px Inter`;
   ctx.textAlign = 'center';
   ctx.fillText(`${stats.percentagePassed}%`, width / 2, barY + barHeight * 0.7);
 
@@ -197,13 +197,13 @@ function drawCard(ctx, x, y, width, height, color, label, value, scale = 1) {
 
   // Value
   ctx.fillStyle = '#ffffff';
-  ctx.font = `bold ${Math.round(42 * scale)}px Arial`;
+  ctx.font = `bold ${Math.round(42 * scale)}px Inter`;
   ctx.textAlign = 'center';
   ctx.fillText(value, x + width / 2, y + height * 0.5);
 
   // Label
   ctx.fillStyle = color;
-  ctx.font = `${Math.round(18 * scale)}px Arial`;
+  ctx.font = `${Math.round(18 * scale)}px Inter`;
   ctx.fillText(label, x + width / 2, y + height * 0.8);
 }
 
@@ -283,13 +283,13 @@ async function generateLifeWeeksImage(birthdate, timezone = 'UTC', maxAge = 80, 
 
   // Title
   ctx.fillStyle = '#ffffff';
-  ctx.font = `bold ${Math.round(44 * scale)}px Arial`;
+  ctx.font = `bold ${Math.round(44 * scale)}px Inter`;
   ctx.textAlign = 'center';
   ctx.fillText(`Life in Weeks`, width / 2, contentTop + 60 * scaleY);
   
   // Subtitle with age
   ctx.fillStyle = '#a0aec0';
-  ctx.font = `${Math.round(22 * scale)}px Arial`;
+  ctx.font = `${Math.round(22 * scale)}px Inter`;
   ctx.fillText(`${stats.currentAge} years old • ${stats.maxAge} year lifespan`, width / 2, contentTop + 95 * scaleY);
 
   // Stats cards
@@ -430,13 +430,13 @@ async function generateLifeDaysImage(birthdate, timezone = 'UTC', maxAge = 80, w
 
   // Title
   ctx.fillStyle = '#ffffff';
-  ctx.font = `bold ${Math.round(44 * scale)}px Arial`;
+  ctx.font = `bold ${Math.round(44 * scale)}px Inter`;
   ctx.textAlign = 'center';
   ctx.fillText(`Life in Days`, width / 2, contentTop + 60 * scaleY);
   
   // Subtitle with age
   ctx.fillStyle = '#a0aec0';
-  ctx.font = `${Math.round(22 * scale)}px Arial`;
+  ctx.font = `${Math.round(22 * scale)}px Inter`;
   ctx.fillText(`${stats.currentAge} years old • ${stats.maxAge} year lifespan`, width / 2, contentTop + 95 * scaleY);
 
   // Stats cards
@@ -579,12 +579,12 @@ async function generateCountdownImage(targetDate, timezone = 'UTC', title = 'Eve
 
   // Title (event name)
   ctx.fillStyle = '#a0aec0';
-  ctx.font = `${Math.round(28 * scale)}px Arial`;
+  ctx.font = `${Math.round(28 * scale)}px Inter`;
   ctx.textAlign = 'center';
   ctx.fillText(stats.isToday ? '🎉 TODAY 🎉' : (stats.isPast ? 'Since' : 'Countdown to'), width / 2, contentTop + 50 * scaleY);
   
   ctx.fillStyle = '#ffffff';
-  ctx.font = `bold ${Math.round(48 * scale)}px Arial`;
+  ctx.font = `bold ${Math.round(48 * scale)}px Inter`;
   ctx.fillText(stats.title, width / 2, contentTop + 110 * scaleY);
 
   // Target date subtitle
@@ -597,13 +597,13 @@ async function generateCountdownImage(targetDate, timezone = 'UTC', title = 'Eve
   const [year, month, day] = targetDate.split('-').map(Number);
   const displayDate = dateFormatter.format(new Date(year, month - 1, day));
   ctx.fillStyle = '#a0aec0';
-  ctx.font = `${Math.round(22 * scale)}px Arial`;
+  ctx.font = `${Math.round(22 * scale)}px Inter`;
   ctx.fillText(displayDate, width / 2, contentTop + 150 * scaleY);
 
   if (stats.isToday) {
     // Special "Today" display
     ctx.fillStyle = '#4fd1c5';
-    ctx.font = `bold ${Math.round(120 * scale)}px Arial`;
+    ctx.font = `bold ${Math.round(120 * scale)}px Inter`;
     ctx.fillText('🎊', width / 2, contentTop + 300 * scaleY);
   } else {
     // Big number display
@@ -617,11 +617,11 @@ async function generateCountdownImage(targetDate, timezone = 'UTC', title = 'Eve
       bigNumberGradient.addColorStop(1, '#764ba2');
     }
     ctx.fillStyle = bigNumberGradient;
-    ctx.font = `bold ${Math.round(140 * scale)}px Arial`;
+    ctx.font = `bold ${Math.round(140 * scale)}px Inter`;
     ctx.fillText(bigNumber.toLocaleString(), width / 2, contentTop + 310 * scaleY);
     
     ctx.fillStyle = '#ffffff';
-    ctx.font = `${Math.round(32 * scale)}px Arial`;
+    ctx.font = `${Math.round(32 * scale)}px Inter`;
     ctx.fillText(stats.isPast ? 'days ago' : 'days to go', width / 2, contentTop + 360 * scaleY);
   }
 
