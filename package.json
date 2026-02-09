@@ -13,7 +13,7 @@
   "keywords": ["year-progress", "image-generation", "api"],
   "license": "MIT",
   "dependencies": {
-    "@napi-rs/canvas": "^0.1.44",
+    "@napi-rs/canvas": "^0.1.91",
     "express": "^5.2.1"
   }
 }
